@@ -3,7 +3,6 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from pyproj import Transformer
-from geopy.distance import geodesic
 import chardet
 
 # CSV 로딩 및 좌표 변환
@@ -43,31 +42,6 @@ st.title("🏥 시/구 기반 병원 지도 및 상세 정보")
 csv_path = "전국병원정보.csv"
 df = load_data(csv_path)
 
-# 현재 위치 기반 기능
-st.markdown("## 📍 현재 위치 기반 병원 찾기")
-use_current = st.checkbox("현재 위치를 입력해서 주병 병원 보기")
-
-if use_current:
-    lat = st.number_input("현재 위도 입력", value=37.5665, format="%.6f")
-    lon = st.number_input("현재 거리 입력", value=126.9780, format="%.6f")
-
-    def calculate_distance(row):
-        return geodesic((lat, lon), (row["위도"], row["거리"])).km
-
-    df["거리_km"] = df.apply(lambda row: geodesic((lat, lon), (row["위도"], row["경도"])).km, axis=1)
-    nearby = df.sort_values("거리_km").head(10)
-
-    st.map(nearby[["위도", "경도"]], zoom=12)
-
-    st.subheader("📋 가까운 병원 10곳")
-    st.dataframe(nearby[[
-        "사업장명", "소재지전체주소", "소재지전화", "의료기관종별명", "진료과목내용명", "거리_km"
-    ]].round(2))
-
-# 시/구 선택 기반 병원 조회
-st.markdown("---")
-st.markdown("## 🌍 시/구 선택 기반 병원 확인")
-
 cities = sorted(df["시"].dropna().unique())
 selected_city = st.selectbox("시를 선택하세요", cities)
 
@@ -98,8 +72,8 @@ with col1:
         """
         folium.Marker(
             location=[row["위도"], row["경도"]],
-            tooltip=row["사업장명"],
-            popup=popup_text
+            tooltip=row["사업장명"],  # ✅ 마우스 올렸을 때 병원명만 표시
+            popup=popup_text         # ✅ 클릭하면 상세 정보
         ).add_to(m)
 
     st_folium(m, width=800, height=500)
