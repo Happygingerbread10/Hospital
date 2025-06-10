@@ -36,7 +36,6 @@ def load_data(file_path):
     return df.dropna(subset=["위도", "경도"])
 
 # Streamlit UI
-st.set_page_config(layout="wide")
 st.title("🏪 시/구 기반 약국 지도 및 상세 정보")
 
 # CSV 경로
