@@ -3,5 +3,5 @@ pandas
 folium
 streamlit-folium
 pyproj
-chardet
 geopy
+chardet
